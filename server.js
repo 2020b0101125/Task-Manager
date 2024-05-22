@@ -1,30 +1,30 @@
-import express from "express";
-import ejs from "ejs";
-import mongoose from "mongoose";
+const express = require("express");
+const bodyParser = require("body-parser");
+const pg = require("pg");
 const app = express();
 const port = 3000;
 
-mongoose.connect("mongodb://127.0.0.1:27017/blogDB", { useNewUrlParser: true });
-
-const loginConnection = mongoose.createConnection(
-  "mongodb://127.0.0.1:27017/loginDB"
-);
-const loginSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-});
-const login = loginConnection.model("login", loginSchema);
-
-const blogSchema = new mongoose.Schema({
-  title: String,
-  post: String,
+const db = new pg.Client({
+  user: "postgres",
+  host: "localhost",
+  database: "World",
+  password: "admin",
+  port: 5432,
 });
 
-app.set("view engine", "ejs");
-//app.use(bodyParser.urlencoded({ extended: true }));
+db.connect();
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+  //Write your code here.
+  let countries = [];
+  const result = await db.query("select task from tasks");
+  result.rows.forEach((element) => {
+    countries.push(element.country_code);
+  });
+  console.log(countries);
   res.render("index.ejs");
 });
 
